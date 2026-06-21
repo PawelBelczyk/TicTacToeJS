@@ -22,6 +22,19 @@ return {
 
 
 
+function Player(name, mark) {
+
+    function getName() {
+        return name;
+    }
+
+    return {
+        name,
+        mark
+    };
+}
+
+
 
 
 
