@@ -1,3 +1,6 @@
+
+console.log("JS działa");
+
 const Gameboard = (() => {
     const board = ["", "", "", "", "", "", "", "", ""];
 
@@ -109,10 +112,50 @@ const GameController = (() => {
     };
 })();
 
+const ScreenController = (() => {
+    const boardDiv = document.querySelector("#board");
+    const infoDiv = document.querySelector("#info");
+    const resetBtn = document.querySelector("#reset");
 
-// TEST
-GameController.playRound(0); // X
-GameController.playRound(1); // O
-GameController.playRound(3); // X
-GameController.playRound(4); // O
-GameController.playRound(6); // X -> WIN
+    function render() {
+        const board = Gameboard.getBoard();
+        boardDiv.innerHTML = "";
+
+        board.forEach((cell, index) => {
+            const button = document.createElement("button");
+            button.classList.add("cell");
+            button.textContent = cell;
+
+            button.addEventListener("click", () => {
+                GameController.playRound(index);
+                updateScreen();
+            });
+
+            boardDiv.appendChild(button);
+        });
+
+        updateInfo();
+    }
+
+    function updateInfo() {
+        const player = GameController.getCurrentPlayer();
+        infoDiv.textContent = `Tura: ${player.mark}`;
+    }
+
+    resetBtn.addEventListener("click", () => {
+        GameController.restart();
+        updateScreen();
+    });
+
+    function updateScreen() {
+        render();
+    }
+
+    // START GRY
+    render();
+
+    return {};
+})();
+
+
+ 
