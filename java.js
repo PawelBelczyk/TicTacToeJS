@@ -1,8 +1,7 @@
-
 console.log("JS działa");
 
 const Gameboard = (() => {
-    const board = ["", "", "", "", "", "", "", "", ""];
+    let board = ["", "", "", "", "", "", "", "", ""];
 
     function getBoard() {
         return board;
@@ -15,35 +14,23 @@ const Gameboard = (() => {
     }
 
     function reset() {
-        for (let i = 0; i < board.length; i++) {
-            board[i] = "";
-        }
+        board = ["", "", "", "", "", "", "", "", ""];
     }
 
-    return {
-        getBoard,
-        placeMark,
-        reset
-    };
+    return { getBoard, placeMark, reset };
 })();
 
-
 function Player(name, mark) {
-
     function getName() {
         return name;
     }
 
-    return {
-        getName,
-        mark
-    };
+    return { getName, mark };
 }
 
-
 const GameController = (() => {
-    const player1 = Player("Paweł", "X");
-    const player2 = Player("Anna", "O");
+    const player1 = Player("Player1", "X");
+    const player2 = Player("Player2", "O");
 
     let currentPlayer = player1;
     let gameOver = false;
@@ -63,36 +50,32 @@ const GameController = (() => {
             [0,4,8],[2,4,6]
         ];
 
-        return wins.some(([a, b, c]) => {
-            return board[a] &&
-                   board[a] === board[b] &&
-                   board[a] === board[c];
-        });
+        return wins.some(([a,b,c]) =>
+            board[a] &&
+            board[a] === board[b] &&
+            board[a] === board[c]
+        );
     }
 
     function playRound(index) {
         if (gameOver) return;
 
         const mark = currentPlayer.mark;
-
         const success = Gameboard.placeMark(index, mark);
 
-        if (!success) {
-            console.log("Zajęte pole, wybierz inne");
-            return;
-        }
+        if (!success) return;
 
         const board = Gameboard.getBoard();
 
         if (checkWinner(board)) {
-            console.log(`${currentPlayer.getName()} wygrał!`);
             gameOver = true;
+            ScreenController.showResult(`${currentPlayer.getName()} wygrał! 🎉`);
             return;
         }
 
         if (!board.includes("")) {
-            console.log("Remis");
             gameOver = true;
+            ScreenController.showResult("Remis 🤝");
             return;
         }
 
@@ -103,19 +86,17 @@ const GameController = (() => {
         Gameboard.reset();
         currentPlayer = player1;
         gameOver = false;
+        ScreenController.clearResult();
     }
 
-    return {
-        playRound,
-        getCurrentPlayer,
-        restart
-    };
+    return { playRound, getCurrentPlayer, restart };
 })();
 
 const ScreenController = (() => {
     const boardDiv = document.querySelector("#board");
     const infoDiv = document.querySelector("#info");
     const resetBtn = document.querySelector("#reset");
+    const resultDiv = document.querySelector("#result");
 
     function render() {
         const board = Gameboard.getBoard();
@@ -125,6 +106,9 @@ const ScreenController = (() => {
             const button = document.createElement("button");
             button.classList.add("cell");
             button.textContent = cell;
+
+            if (cell === "X") button.classList.add("player-x");
+            if (cell === "O") button.classList.add("player-o");
 
             button.addEventListener("click", () => {
                 GameController.playRound(index);
@@ -142,20 +126,24 @@ const ScreenController = (() => {
         infoDiv.textContent = `Tura: ${player.mark}`;
     }
 
-    resetBtn.addEventListener("click", () => {
-        GameController.restart();
-        updateScreen();
-    });
+    function showResult(text) {
+        resultDiv.textContent = text;
+    }
+
+    function clearResult() {
+        resultDiv.textContent = "";
+    }
 
     function updateScreen() {
         render();
     }
 
-    // START GRY
+    resetBtn.addEventListener("click", () => {
+        GameController.restart();
+        updateScreen();
+    });
+
     render();
 
-    return {};
+    return { showResult, clearResult };
 })();
-
-
- 
